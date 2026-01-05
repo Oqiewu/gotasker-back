@@ -1,0 +1,39 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Documentation
+*.md
+!README.md
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Data and logs
+data/*.json
+logs/
+tmp/
+
+# Tests
+*_test.go
+tests/
+
+# Environment
+.env
+.env.local
+
+# Binaries
+bin/
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
