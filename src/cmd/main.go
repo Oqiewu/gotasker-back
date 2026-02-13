@@ -5,16 +5,28 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gotasker/gotasker-back/src/internal/database"
 )
 
 func main() {
-	// Получаем порт из переменной окружения или используем 8080 по умолчанию
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	// Создаем Gin router с дефолтными middleware (Logger, Recovery)
+	// Подключение к базе данных
+	dbConfig := database.NewConfigFromEnv()
+	db, err := database.Connect(dbConfig)
+	if err != nil {
+		log.Fatal("Failed to connect to database:", err)
+	}
+	defer db.Close()
+
+	// Запуск миграций
+	if err := database.RunMigrations(db, "migrations"); err != nil {
+		log.Fatal("Failed to run migrations:", err)
+	}
+
 	router := gin.Default()
 
 	// Временный health check endpoint
