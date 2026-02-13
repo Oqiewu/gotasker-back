@@ -23,7 +23,12 @@ func main() {
 	defer db.Close()
 
 	// Запуск миграций
-	if err := database.RunMigrations(db, "migrations"); err != nil {
+	migrationsPath := "migrations"
+	if _, err := os.Stat("/app/migrations"); err == nil {
+		// Запущено в Docker контейнере
+		migrationsPath = "/app/migrations"
+	}
+	if err := database.RunMigrations(db, migrationsPath); err != nil {
 		log.Fatal("Failed to run migrations:", err)
 	}
 

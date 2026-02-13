@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"path/filepath"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -55,6 +56,17 @@ func Connect(cfg *Config) (*sql.DB, error) {
 }
 
 func RunMigrations(db *sql.DB, migrationsPath string) error {
+	// Проверяем, есть ли файлы миграций
+	files, err := filepath.Glob(filepath.Join(migrationsPath, "*.sql"))
+	if err != nil {
+		return fmt.Errorf("failed to check migration files: %w", err)
+	}
+
+	if len(files) == 0 {
+		log.Println("No migration files found, skipping migrations")
+		return nil
+	}
+
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
 		return fmt.Errorf("failed to create migration driver: %w", err)
@@ -80,8 +92,10 @@ func RunMigrations(db *sql.DB, migrationsPath string) error {
 
 	if dirty {
 		log.Printf("Warning: database is in dirty state at version %d", version)
-	} else {
+	} else if err == nil {
 		log.Printf("Migrations completed. Current version: %d", version)
+	} else {
+		log.Println("No migrations applied yet")
 	}
 
 	return nil

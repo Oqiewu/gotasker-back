@@ -1,7 +1,7 @@
 # Многоэтапная сборка для минимального размера образа
 
 # Этап 1: Сборка (Build stage)
-FROM golang:1.23.2-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
@@ -35,6 +35,9 @@ WORKDIR /app
 
 # Копируем бинарник из builder stage
 COPY --from=builder /app/bin/gotasker /app/gotasker
+
+# Копируем миграции
+COPY migrations /app/migrations
 
 # Создаем директории для данных
 RUN mkdir -p /app/data /app/logs && \

@@ -7,18 +7,18 @@ services:
       dockerfile: Dockerfile
     container_name: gotasker-api
     ports:
-      - "8080:8080"
-    environment:
-      - SERVER_PORT=8080
-      - ENVIRONMENT=development
-      - DATA_FILE_PATH=/app/data/tasks.json
-      - LOG_LEVEL=debug
+      - "${SERVER_PORT:-8080}:8080"
+    env_file:
+      - .env
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
     restart: unless-stopped
     networks:
       - gotasker-network
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
       interval: 30s
@@ -30,11 +30,11 @@ services:
    image: postgres:15-alpine
    container_name: gotasker-db
    environment:
-     POSTGRES_USER: gotasker
-     POSTGRES_PASSWORD: password
-     POSTGRES_DB: gotasker_db
+     POSTGRES_USER: ${DB_USER}
+     POSTGRES_PASSWORD: ${DB_PASSWORD}
+     POSTGRES_DB: ${DB_NAME}
    ports:
-     - "5432:5432"
+     - "${DB_PORT:-5432}:5432"
    volumes:
      - postgres_data:/var/lib/postgresql/data
    networks:
